@@ -24,6 +24,7 @@ def readFile(raw_file_path):
     for i in range(n_events):
         events.append(Event(hexdata, first_header+SAMPLE_LENGTH_CONST*i))
     
+    # final print out
     print(f"File {raw_file_path} read.")
 
     return events
@@ -73,4 +74,5 @@ class Event:
             print(f"Warning: the next event not found (instead: {data[self.position + 4*self.length + 34 : self.position + 4*self.length + 38]})")
 
 if __name__ == '__main__':
+    # example, not runned if imported (__name__ != '__main__')
     readFile("./Programming/Projects/S3Python/data/data_2024-01-04_11_12_09_658.raw")
