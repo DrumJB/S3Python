@@ -3,6 +3,10 @@ import numpy as np
 import multiprocessing as mp
 import os
 import readFile
+import datetime
+
+# start log
+print(f"START: {datetime.datetime.now()}")
 
 data_folder = "./Programming/Projects/S3Python/data"    # data folder path
 
@@ -15,18 +19,15 @@ for o in objs:
         raw_files.append(data_folder+str("/")+str(o))   
         # append raw file to file names list with full path
 
-processes = []  # list of all processes
-for rf in raw_files:
-    processes.append(mp.Process(target=readFile.readFile, args=(rf, )))
-    # set up all processes
 
-for p in processes:
-    # start all processes
-    p.start()
+# pooling (the method is undestandably explained e.g. here: https://www.geeksforgeeks.org/synchronization-pooling-processes-python/)
 
-for p in processes:
-    # wait until all processes end
-    p.join()
+pool = mp.Pool()    # Pool object
+
+all_events = pool.map(readFile.readFile, raw_files)
 
 # print out
 print("All data loaded in classes.")
+
+# end log
+print(f"END: {datetime.datetime.now()}")
