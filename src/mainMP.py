@@ -21,10 +21,18 @@ for o in objs:
 
 
 # pooling (the method is undestandably explained e.g. here: https://www.geeksforgeeks.org/synchronization-pooling-processes-python/)
+cpu_c = mp.cpu_count()
+if mp.cpu_count() > 2:
+    cpu_c += -2
 
-pool = mp.Pool()    # Pool object
+pool = mp.Pool(cpu_c)    # Pool object
+chunk_size = len(raw_files) // cpu_c   # how many files each will be worker assigned
+if chunk_size == 0: chunk_size=1    # not zero if the cpu number is larger
 
-all_events = pool.map(readFile.readFile, raw_files)
+all_events = pool.imap_unordered(readFile.readFile, raw_files, chunksize=chunk_size) # returns iterator
+
+pool.close()
+pool.join()
 
 # print out
 print("All data loaded in classes.")
