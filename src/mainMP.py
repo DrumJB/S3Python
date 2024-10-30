@@ -11,6 +11,7 @@ debug_n_files = 6
 
 # start log
 print(f"START: {datetime.datetime.now()}")
+if debug: print(f"DEBUG MODE: activated, debug_n_files={debug_n_files}")
 
 data_folder = "./Programming/Projects/S3Python/data"    # data folder path
 
@@ -41,7 +42,7 @@ pool.close()
 pool.join()
 
 # print out
-print("All data loaded in classes.")
+print("INFO: All data loaded in classes.")
 
 # end log
 print(f"END: {datetime.datetime.now()}")
