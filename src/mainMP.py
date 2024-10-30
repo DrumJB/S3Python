@@ -5,6 +5,10 @@ import os
 import readFile
 import datetime
 
+# debug on n files only
+debug = True
+debug_n_files = 6
+
 # start log
 print(f"START: {datetime.datetime.now()}")
 
@@ -19,6 +23,8 @@ for o in objs:
         raw_files.append(data_folder+str("/")+str(o))   
         # append raw file to file names list with full path
 
+# set number of files to load equal to debug_n_files if debug
+raw_files = raw_files[:debug_n_files]
 
 # pooling (the method is undestandably explained e.g. here: https://www.geeksforgeeks.org/synchronization-pooling-processes-python/)
 cpu_c = mp.cpu_count()
