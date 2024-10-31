@@ -35,6 +35,10 @@ data_folder = settings["main"]["data_folder"]
 # maximum RAM usage
 max_RAM_usage = settings["run_config"]["max_RAM_usage"]
 
+# clear RAM cache if run on POSIX system
+if os.name == 'posix':
+    os.system("sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'")
+
 ####################
 #       MAIN       #
 ####################
@@ -81,6 +85,10 @@ pool.close()
 pool.join()
 
 ## END
+
+# clear RAM cache if run on POSIX system
+if os.name == 'posix':
+    os.system("sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'")
 
 # end log
 print(f"END: {datetime.datetime.now()}")
