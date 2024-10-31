@@ -69,7 +69,7 @@ def processFile(file_name):
     while not done:     # try to run the job if not done
         if pu.virtual_memory()[2]/100 < max_RAM_usage:
             events = readFile.readFile(file_name)
-            eventEnergy.eventEnergy(events)
+            result = eventEnergy.eventEnergy(events)    # result - 0= no error, 1= some error
             done=True
         else:
             print(f"INFO: Waiting for RAM memory ({pu.virtual_memory()[2]}%).")
@@ -77,6 +77,7 @@ def processFile(file_name):
                 os.system("sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'")
                 print("INFO: RAM cache cleared.")
             time.sleep(5)   # wait for 5 seconds
+    return result
 
 ## MULTIPROCESSING - POOLING
 
@@ -86,10 +87,10 @@ if mp.cpu_count() > 2:
     cpu_c += -2
 
 pool = mp.Pool(cpu_c)    # Pool object
-chunk_size = len(raw_files) // cpu_c   # how many files each will be worker assigned
-if chunk_size == 0: chunk_size=1    # not zero if the cpu number is larger
 
-all_events = pool.imap_unordered(processFile, raw_files, chunksize=chunk_size) # returns iterator
+results = pool.imap_unordered(processFile, raw_files) # returns iterator
+
+print('INFO: Multiprocessing ends.')
 
 pool.close()
 pool.join()
