@@ -1,0 +1,12 @@
+{
+    "main":{
+        "data_folder": "./data"
+    },
+    "run_config":{
+        "max_RAM_usage": 0.7
+    },
+    "debug":{
+        "debug_mode": true,
+        "debug_n_files": 6
+    }
+}

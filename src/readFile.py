@@ -1,3 +1,5 @@
+# script for loading data from one .raw file into Event class (see below)
+
 # importing libraries
 import numpy as np
 
@@ -14,7 +16,7 @@ def readFile(raw_file_path):
     checkedByte=0           # the iterated variable in the cycle below
     while first_header==-1:     # = while the first header not found
         if hexdata[checkedByte:checkedByte+4] == 'fff0':     # searching first header in the file
-            first_header = checkedByte                      # saving the found position if lucky
+            first_header = checkedByte                       # saving the found position if lucky
         checkedByte += 1       # adding 1 to continue the search for header
     
     # number of events in file, that are not divided
@@ -61,9 +63,8 @@ class Event:
         self.samples = np.array(self.samples)      # for better manipulation
 
         # times
-        self.t1 = int(data[self.position + 4*self.length + 12 : self.position + 4*self.length + 16], 16)    # see the event structure
-        self.t2 = int(data[self.position + 4*self.length + 16 : self.position + 4*self.length + 20], 16)    # I wasn't fixing 100 as default samples length
-        self.t3 = int(data[self.position + 4*self.length + 20 : self.position + 4*self.length + 24], 16)
+        self.t = int(data[self.position + 4*self.length + 12 : self.position + 4*self.length + 24], 16)    # see the event structure
+        # I wasn't fixing 100 as default samples length
 
         # lost events & checksum
         self.lost_events = int(data[self.position + 4*self.length + 24 : self.position + 4*self.length + 28], 16)

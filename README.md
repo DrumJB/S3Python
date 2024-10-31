@@ -9,3 +9,5 @@ Reading binary files as hex string and parsing it myself. Creating working class
 First sketch of multiprocessing, reading of multiple files in multiple processes. Might prove useful later.
 ##### 28.10.2024
 Multiprocessing using `Pool` class and timing.
+##### 31.10.2024
+RAM overflow handling and settings in JSON file.
