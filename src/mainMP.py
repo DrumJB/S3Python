@@ -71,6 +71,9 @@ def processFile(file_name):
             if pu.virtual_memory()[2]/100 < max_RAM_usage:
                 events = readFile.readFile(file_name)
                 eventEnergy.eventEnergy(events)    # result - 0= no error, 1= some error
+                if os.name == 'posix' and POSIX_drop_cache_continuously:
+                    os.system("sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'")
+                    print("INFO: RAM cache cleared.")
                 done=True
                 print(f"INFO: Proccessed file {file_name}.")
             else:
@@ -89,8 +92,10 @@ cpu_c = mp.cpu_count()
 if mp.cpu_count() > 4:
     cpu_c += -4
 
-with mp.Pool(cpu_c) as pool:    # Pool object
-    pool.imap_unordered(processFile, raw_files) # using imap unordered - better handling see API
+with mp.Pool(cpu_c, maxtasksperchild=1) as pool:    # Pool object
+    for rf in raw_files:
+        pool.apply_async(processFile, args=(rf))
+
     pool.close()
     pool.join()
 

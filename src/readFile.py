@@ -45,7 +45,7 @@ class Event:
 
         # check header - 2 bytes
         if data[self.position:self.position+4] != 'fff0':
-            print('Error: Can not create event, header not found')      # the position is probably wrong
+            print('ERROR: Can not create event, header not found')      # the position is probably wrong
         
         # detector code
         self.detector = int(data[self.position-2:self.position], 16)    # on byte (=> two letters) before the header
@@ -72,7 +72,7 @@ class Event:
         
         # check the next event header (the two bytes before are the detector number)
         if data[self.position + 4*self.length + 34 : self.position + 4*self.length + 38]!='fff0':
-            print(f"Warning: the next event not found (instead: {data[self.position + 4*self.length + 34 : self.position + 4*self.length + 38]})")
+            print(f"WARNING: the next event not found (instead: {data[self.position + 4*self.length + 34 : self.position + 4*self.length + 38]})")
 
 if __name__ == '__main__':
     # example, not runned if imported (__name__ != '__main__')
