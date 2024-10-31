@@ -72,6 +72,7 @@ def processFile(file_name):
                 events = readFile.readFile(file_name)
                 result = eventEnergy.eventEnergy(events)    # result - 0= no error, 1= some error
                 done=True
+                print(f"INFO: File {file_name} processed.")
             else:
                 print(f"INFO: Waiting for RAM memory ({pu.virtual_memory()[2]}%).")
                 if os.name == 'posix' and POSIX_drop_cache_continuously:
@@ -90,13 +91,10 @@ cpu_c = mp.cpu_count()
 if mp.cpu_count() > 4:
     cpu_c += -4
 
-pool = mp.Pool(cpu_c)    # Pool object
-
-results = pool.imap_unordered(processFile, raw_files) # using imap unordered - better handling see API
-
-pool.close()
-pool.join()
-
+with mp.Pool(cpu_c) as pool:    # Pool object
+    pool.imap_unordered(processFile, raw_files) # using imap unordered - better handling see API
+    pool.close()
+    pool.join()
 
 print('INFO: Multiprocessing ends.')
 
