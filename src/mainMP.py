@@ -66,34 +66,39 @@ raw_files = raw_files[:debug_n_files]
 # function for processing one file, called in Pool
 def processFile(file_name):
     done = False
-    while not done:     # try to run the job if not done
-        if pu.virtual_memory()[2]/100 < max_RAM_usage:
-            events = readFile.readFile(file_name)
-            result = eventEnergy.eventEnergy(events)    # result - 0= no error, 1= some error
-            done=True
-        else:
-            print(f"INFO: Waiting for RAM memory ({pu.virtual_memory()[2]}%).")
-            if os.name == 'posix' and POSIX_drop_cache_continuously:
-                os.system("sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'")
-                print("INFO: RAM cache cleared.")
-            time.sleep(5)   # wait for 5 seconds
+    try:
+        while not done:     # try to run the job if not done
+            if pu.virtual_memory()[2]/100 < max_RAM_usage:
+                events = readFile.readFile(file_name)
+                result = eventEnergy.eventEnergy(events)    # result - 0= no error, 1= some error
+                done=True
+            else:
+                print(f"INFO: Waiting for RAM memory ({pu.virtual_memory()[2]}%).")
+                if os.name == 'posix' and POSIX_drop_cache_continuously:
+                    os.system("sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'")
+                    print("INFO: RAM cache cleared.")
+                time.sleep(5)   # wait for 5 seconds
+    except Exception as e:
+        print(f"ERROR: Processing file {file_name} failed with error: {e}")
+        result = 1
     return result
 
 ## MULTIPROCESSING - POOLING
 
 # pooling (the method is undestandably explained e.g. here: https://www.geeksforgeeks.org/synchronization-pooling-processes-python/)
 cpu_c = mp.cpu_count()
-if mp.cpu_count() > 2:
-    cpu_c += -2
+if mp.cpu_count() > 4:
+    cpu_c += -4
 
 pool = mp.Pool(cpu_c)    # Pool object
 
-results = pool.imap_unordered(processFile, raw_files) # returns iterator
-
-print('INFO: Multiprocessing ends.')
+results = pool.imap_unordered(processFile, raw_files) # using imap unordered - better handling see API
 
 pool.close()
 pool.join()
+
+
+print('INFO: Multiprocessing ends.')
 
 ## END
 
