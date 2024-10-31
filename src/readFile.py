@@ -27,7 +27,7 @@ def readFile(raw_file_path):
         events.append(Event(hexdata, first_header+SAMPLE_LENGTH_CONST*i))
     
     # final print out
-    print(f"INFO: File {raw_file_path} read.")
+    print(f"INFO: Read file {raw_file_path}.")
 
     return events
 

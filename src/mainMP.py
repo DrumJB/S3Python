@@ -69,10 +69,11 @@ def processFile(file_name):
     try:
         while not done:     # try to run the job if not done
             if pu.virtual_memory()[2]/100 < max_RAM_usage:
-                events = readFile.readFile(file_name)
-                result = eventEnergy.eventEnergy(events)    # result - 0= no error, 1= some error
+                #events = readFile.readFile(file_name)
+                #result = eventEnergy.eventEnergy(events)    # result - 0= no error, 1= some error
+                time.sleep(1)
                 done=True
-                print(f"INFO: File {file_name} processed.")
+                print(f"INFO: Proccessed file {file_name}.")
             else:
                 print(f"INFO: Waiting for RAM memory ({pu.virtual_memory()[2]}%).")
                 if os.name == 'posix' and POSIX_drop_cache_continuously:
