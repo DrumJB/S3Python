@@ -70,8 +70,7 @@ def processFile(file_name):
         while not done:     # try to run the job if not done
             if pu.virtual_memory()[2]/100 < max_RAM_usage:
                 #events = readFile.readFile(file_name)
-                #result = eventEnergy.eventEnergy(events)    # result - 0= no error, 1= some error
-                time.sleep(1)
+                result = eventEnergy.eventEnergy([])    # result - 0= no error, 1= some error
                 done=True
                 print(f"INFO: Proccessed file {file_name}.")
             else:
