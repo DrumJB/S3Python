@@ -94,7 +94,7 @@ if mp.cpu_count() > 4:
 
 with mp.Pool(cpu_c, maxtasksperchild=1) as pool:    # Pool object
     for rf in raw_files:
-        pool.apply_async(processFile, args=(rf))
+        pool.apply_async(processFile, args=(rf,))
 
     pool.close()
     pool.join()
