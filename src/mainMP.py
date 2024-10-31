@@ -6,6 +6,7 @@ import datetime
 import psutil as pu
 import sys
 import json
+import time
 
 import readFile
 import eventEnergy
@@ -34,10 +35,13 @@ data_folder = settings["main"]["data_folder"]
 
 # maximum RAM usage
 max_RAM_usage = settings["run_config"]["max_RAM_usage"]
+POSIX_drop_cache = settings["run_config"]["POSIX_drop_cache"]
+POSIX_drop_cache_continuously = settings["run_config"]["POSIX_drop_cache_continuously"]
 
 # clear RAM cache if run on POSIX system
-if os.name == 'posix':
+if os.name == 'posix' and POSIX_drop_cache:
     os.system("sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'")
+    print("INFO: RAM cache cleared.")
 
 ####################
 #       MAIN       #
@@ -67,6 +71,12 @@ def processFile(file_name):
             events = readFile.readFile(file_name)
             eventEnergy.eventEnergy(events)
             done=True
+        else:
+            print(f"INFO: Waiting for RAM memory ({pu.virtual_memory()[2]}%).")
+            if os.name == 'posix' and POSIX_drop_cache_continuously:
+                os.system("sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'")
+                print("INFO: RAM cache cleared.")
+            time.sleep(5)   # wait for 5 seconds
 
 ## MULTIPROCESSING - POOLING
 
@@ -87,8 +97,9 @@ pool.join()
 ## END
 
 # clear RAM cache if run on POSIX system
-if os.name == 'posix':
+if os.name == 'posix' and POSIX_drop_cache:
     os.system("sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'")
+    print("INFO: RAM cache cleared.")
 
 # end log
 print(f"END: {datetime.datetime.now()}")
