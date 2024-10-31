@@ -2,7 +2,6 @@
 
 # importing libraries
 import gc
-import os
 
 def eventEnergy(events):
     print(f"INFO: Analyzing {len(events)} events.")

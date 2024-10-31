@@ -69,8 +69,8 @@ def processFile(file_name):
     try:
         while not done:     # try to run the job if not done
             if pu.virtual_memory()[2]/100 < max_RAM_usage:
-                #events = readFile.readFile(file_name)
-                result = eventEnergy.eventEnergy([])    # result - 0= no error, 1= some error
+                events = readFile.readFile(file_name)
+                eventEnergy.eventEnergy(events)    # result - 0= no error, 1= some error
                 done=True
                 print(f"INFO: Proccessed file {file_name}.")
             else:
@@ -81,8 +81,6 @@ def processFile(file_name):
                 time.sleep(5)   # wait for 5 seconds
     except Exception as e:
         print(f"ERROR: Processing file {file_name} failed with error: {e}")
-        result = 1
-    return result
 
 ## MULTIPROCESSING - POOLING
 
