@@ -92,12 +92,12 @@ cpu_c = mp.cpu_count()
 if mp.cpu_count() > 4:
     cpu_c += -4
 
-with mp.Pool(cpu_c, maxtasksperchild=1) as pool:    # Pool object
-    
-    pool.imap_unordered(processFile, raw_files)
+pool = mp.Pool(cpu_c)    # Pool object
 
-    pool.close()
-    pool.join()
+pool.imap_unordered(processFile, raw_files)
+
+pool.close()
+pool.join()
 
 print('INFO: Multiprocessing ends.')
 
