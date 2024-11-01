@@ -93,8 +93,8 @@ if mp.cpu_count() > 4:
     cpu_c += -4
 
 with mp.Pool(cpu_c, maxtasksperchild=1) as pool:    # Pool object
-    for rf in raw_files:
-        pool.apply_async(processFile, args=(rf,))
+    
+    pool.imap_unordered(processFile, raw_files)
 
     pool.close()
     pool.join()
