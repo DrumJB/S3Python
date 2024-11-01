@@ -33,6 +33,9 @@ if debug_mode: print(f"DEBUG MODE: activated, debug_n_files={debug_n_files}")
 # data folder path
 data_folder = settings["main"]["data_folder"]    
 
+# processFile timeout
+timeout = settings["run_config"]["processFile_timout"]
+
 # maximum RAM usage
 max_RAM_usage = settings["run_config"]["max_RAM_usage"]
 POSIX_drop_cache = settings["run_config"]["POSIX_drop_cache"]
@@ -88,10 +91,12 @@ if mp.cpu_count() > 4:
 
 pool = mp.Pool(cpu_c)    # Pool object
 
-pool.imap_unordered(processFile, raw_files)
-
-pool.close()
-pool.join()
+results = [pool.apply_async(processFile, args=(rf,)) for rf in raw_files]
+for result, rf in zip(results, raw_files):
+    try:
+        result.get(timeout=timeout)
+    except mp.TimeoutError:
+        print(f"WARNING: Unable to process file {rf} (timeout).")
 
 print('INFO: Multiprocessing ends.')
 
