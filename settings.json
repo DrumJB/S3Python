@@ -5,7 +5,7 @@
     "run_config":{
         "max_RAM_usage": 0.7,
         "POSIX_drop_cache": true,
-        "POSIX_drop_cache_continuously": true
+        "POSIX_drop_cache_continuously": false
     },
     "debug":{
         "debug_mode": true,

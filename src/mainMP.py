@@ -71,16 +71,10 @@ def processFile(file_name):
             if pu.virtual_memory()[2]/100 < max_RAM_usage:
                 events = readFile.readFile(file_name)
                 eventEnergy.eventEnergy(events)    # result - 0= no error, 1= some error
-                if os.name == 'posix' and POSIX_drop_cache_continuously:
-                    os.system("sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'")
-                    print("INFO: RAM cache cleared.")
                 done=True
                 print(f"INFO: Proccessed file {file_name}.")
             else:
                 print(f"INFO: Waiting for RAM memory ({pu.virtual_memory()[2]}%).")
-                if os.name == 'posix' and POSIX_drop_cache_continuously:
-                    os.system("sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'")
-                    print("INFO: RAM cache cleared.")
                 time.sleep(5)   # wait for 5 seconds
     except Exception as e:
         print(f"ERROR: Processing file {file_name} failed with error: {e}")
@@ -100,6 +94,11 @@ pool.close()
 pool.join()
 
 print('INFO: Multiprocessing ends.')
+
+## Clear RAM after multiprocessing
+if os.name == 'posix' and POSIX_drop_cache_continuously:
+    os.system("sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'")
+    print("INFO: RAM cache cleared.")
 
 ## END
 
