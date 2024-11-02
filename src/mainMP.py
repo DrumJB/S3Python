@@ -34,7 +34,7 @@ if debug_mode: print(f"DEBUG MODE: activated, debug_n_files={debug_n_files}")
 data_folder = settings["main"]["data_folder"]    
 
 # processFile timeout
-timeout = settings["run_config"]["processFile_timout"]
+timeout = settings["run_config"]["processFile_timeout"]
 
 # maximum RAM usage
 max_RAM_usage = settings["run_config"]["max_RAM_usage"]
@@ -69,11 +69,12 @@ raw_files = raw_files[:debug_n_files]
 # function for processing one file, called in Pool
 def processFile(file_name):
     done = False
+    energies = []
     try:
         while not done:     # try to run the job if not done
             if pu.virtual_memory()[2]/100 < max_RAM_usage:
                 events = readFile.readFile(file_name)
-                eventEnergy.eventEnergy(events)    # result - 0= no error, 1= some error
+                energies = eventEnergy.eventsEnergy(events)    # result - events in form: [time, detector, energy]
                 done=True
                 print(f"INFO: Proccessed file {file_name}.")
             else:
@@ -81,6 +82,7 @@ def processFile(file_name):
                 time.sleep(5)   # wait for 5 seconds
     except Exception as e:
         print(f"ERROR: Processing file {file_name} failed with error: {e}")
+    return energies
 
 ## MULTIPROCESSING - POOLING
 
@@ -91,10 +93,12 @@ if mp.cpu_count() > 4:
 
 pool = mp.Pool(cpu_c)    # Pool object
 
+energies = []
+
 results = [pool.apply_async(processFile, args=(rf,)) for rf in raw_files]
 for result, rf in zip(results, raw_files):
     try:
-        result.get(timeout=timeout)
+        energies.append(result.get(timeout=timeout))
     except mp.TimeoutError:
         print(f"WARNING: Unable to process file {rf} (timeout).")
 
@@ -104,6 +108,8 @@ print('INFO: Multiprocessing ends.')
 if os.name == 'posix' and POSIX_drop_cache_continuously:
     os.system("sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'")
     print("INFO: RAM cache cleared.")
+
+energy_events = np.concatenate(energies)    # this returns all events with their energies in one numpy array
 
 ## END
 

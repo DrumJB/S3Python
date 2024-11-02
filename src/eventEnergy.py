@@ -3,9 +3,24 @@
 # importing libraries
 import gc
 
-def eventEnergy(events):
+def eventsEnergy(events):
     print(f"INFO: Analyzing {len(events)} events.")
+
+    energies = []
+
+    for event in events:
+        energies.append(eventEnergy(event))
 
     # free RAM memory
     del events
     gc.collect()    # force it
+
+    return energies
+
+def eventEnergy(event):
+    
+    time = 1
+    detector = 1
+    energy = 1
+
+    return [time, detector, energy]

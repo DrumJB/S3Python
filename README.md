@@ -2,7 +2,7 @@
 
 ### Commits
 
-##### 1.11.2024 = 0.1
+##### 1.11.2024 = V0.1
 Version 0.1, working multiprocessing and loading to `Event` classes. Some files can't be read, not solved fo now
 ##### 31.10.2024
 RAM overflow handling and settings in JSON file.
