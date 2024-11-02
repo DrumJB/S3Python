@@ -62,7 +62,7 @@ for o in objs:
         # append raw file to file names list with full path
 
 # set number of files to load equal to debug_n_files if debug
-raw_files = raw_files[:debug_n_files]
+if debug_mode: raw_files = raw_files[:debug_n_files]
 
 ## PROCESSING FUNCTION
 
