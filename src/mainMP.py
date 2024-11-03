@@ -10,6 +10,7 @@ import time
 
 import readFile
 import eventEnergy
+import energyCalibration
 
 ####################
 #  INITIALIZATION  #
@@ -70,23 +71,20 @@ if debug_mode: raw_files = raw_files[:debug_n_files]
 def processFile(file_name):
     done = False
     energies = []
-    try:
-        while not done:     # try to run the job if not done
-            if pu.virtual_memory()[2]/100 < max_RAM_usage:
-                events = readFile.readFile(file_name)
-                energies = eventEnergy.eventsEnergy(events)    # result - events in form: [time, detector, energy]
-                done=True
-                print(f"INFO: Proccessed file {file_name}.")
-            else:
-                print(f"INFO: Waiting for RAM memory ({pu.virtual_memory()[2]}%).")
-                time.sleep(5)   # wait for 5 seconds
-    except Exception as e:
-        print(f"ERROR: Processing file {file_name} failed with error: {e}")
+    while not done:     # try to run the job if not done
+        if pu.virtual_memory()[2]/100 < max_RAM_usage:
+            events = readFile.readFile(file_name)
+            energies = eventEnergy.eventsEnergy(events)    # result - events in form: [time, detector, energy]
+            done=True
+            print(f"INFO: Processed file {file_name}.")
+        else:
+            print(f"INFO: Waiting for RAM memory ({pu.virtual_memory()[2]}%).")
+            time.sleep(5)   # wait for 5 seconds
     return energies
 
 ## MULTIPROCESSING - POOLING
 
-# pooling (the method is undestandably explained e.g. here: https://www.geeksforgeeks.org/synchronization-pooling-processes-python/)
+# pooling (the method is understandably explained e.g. here: https://www.geeksforgeeks.org/synchronization-pooling-processes-python/)
 cpu_c = mp.cpu_count()
 if mp.cpu_count() > 4:
     cpu_c += -4
@@ -109,7 +107,11 @@ if os.name == 'posix' and POSIX_drop_cache_continuously:
     os.system("sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'")
     print("INFO: RAM cache cleared.")
 
+# MION CALIBRATION
 energy_events = np.concatenate(energies)    # this returns all events with their energies in one numpy array
+mion_energy_eqiv = energyCalibration.calibrate(energy_events=energy_events)    # returned value is corresponds to 200 MeV
+
+print("INFO: Calibration ended.")
 
 ## END
 

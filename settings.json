@@ -3,9 +3,9 @@
         "data_folder": "./data"
     },
     "run_config":{
-        "processFile_timeout": 120,
+        "processFile_timeout": 500,
         "max_RAM_usage": 0.7,
-        "POSIX_drop_cache": true,
+        "POSIX_drop_cache": false,
         "POSIX_drop_cache_continuously": false
     },
     "debug":{
