@@ -60,7 +60,7 @@ def calibrate(energy_events, simultaneity=1e-5, mion_crit=5):
     xdiff = xmax-xmin
     norm_x = []
     for nx in x:
-        norm_x.append((nx-(xmin+5))*15/(xdiff))
+        norm_x.append((nx-(xmin))*15/(xdiff)-5)
     
     #ymin = 0  - assumption
     ymax = np.max(y)
@@ -72,8 +72,14 @@ def calibrate(energy_events, simultaneity=1e-5, mion_crit=5):
 
     guess = (0, np.pi/2)
 
+
+    plot_result = True
+    if plot_result:
+        pp.plot(norm_x[:-1], norm_y)
+        pp.show()
+
     # fitting landau curve
-    param, param_cov = so.curve_fit(landau_arr, norm_x[:-1], norm_y, guess)
+    param, param_cov = so.curve_fit(landau_arr, norm_x[:-1], norm_y, p0=guess)
 
     print(f"INFO: Data fitted using Landau distribution mu = {param[0]}, c = {param[1]}")
 
@@ -88,7 +94,7 @@ def calibrate(energy_events, simultaneity=1e-5, mion_crit=5):
             maximum=landau_discrete[i]
             max_x = i
     
-    mu_energy = x2[max_x]*xdiff/15 + xmin+5    # denormalize as x
+    mu_energy = (x2[max_x]+5)*xdiff/15 + xmin    # denormalize as x
 
     print(f"INFO: Mion energy obtained: 200MeV ~ {mu_energy}.")
     print(f"INFO: Plotting resulted fit...")
