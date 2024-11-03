@@ -35,8 +35,8 @@ def eventsEnergy(events, noiseFile=""):
             print(f"INFO: Energy event analysis progress (individual process): {int(progress*100/print_n_out)}%.")
 
     # free RAM memory
-    #del events
-    #gc.collect()    # force it
+    del events
+    gc.collect()    # force it
 
     return energies
 

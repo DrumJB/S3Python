@@ -13,34 +13,22 @@ def calibrate(energy_events, simultaneity=1e-5, mion_crit=5):
     
     # energy_events are in shape [[time1, detector1, energy1], [time2, detector2, ...] ...]
 
-    times = []
     energies = []
 
-    ############ DEBUG!!!!!!!!!!!!
-    energy_events = energy_events[:10000]
+    print('INFO: Sorting events.')
+    energy_events = energy_events[np.argsort(energy_events[:, 0])]  # sort events by time (first in array)
 
-    # find simultaneous events
-    for i in range(len(energy_events)):
-        event = energy_events[i]
+    for i in range(len(energy_events)-mion_crit):
         print(f"INFO: Event scan progress: {round(i/len(energy_events)*100, 2)}%", end='\r')
-        # don't check if already included in result
-        included = False
-        for t in times:
-            if abs(event[0]-t) < simultaneity:
-                included = True
-        # check with all other events for simultaneity
-        if not included:
-            sim_events = []
-            for j in range(i, len(energy_events)):
-                e = energy_events[j]
-                if abs(e[0]-event[0])<simultaneity:
-                    sim_events.append(e)
-            
-            # mion criterion - at least 5 simultaneous events
-            if len(sim_events) >= mion_crit:
-                times.append(event[0])
-                for se in sim_events:
-                    energies.append(se[2])
+        t1 = energy_events[i][0]
+        t2 = energy_events[i+mion_crit-1][0]
+        if t2 - t1 < simultaneity:
+            if energy_events[i+mion_crit][0]-t1 < simultaneity:     # longer row of simultaneous events than mion_crit
+                energies.append(energy_events[i][2])
+            else:
+                for j in range(mion_crit):                          # append with the rest and add it to i
+                    energies.append(energy_events[i+j][2])
+                i += mion_crit
     
     print(f"INFO: Event scan progress: 100% .. DONE")
     
@@ -66,16 +54,32 @@ def calibrate(energy_events, simultaneity=1e-5, mion_crit=5):
 
     print("INFO: Histogram created.")
 
-    guess = (0.077, 0.010)
+    # normalize for landau fit
+    xmin = x[0]
+    xmax = x[-1]
+    xdiff = xmax-xmin
+    norm_x = []
+    for nx in x:
+        norm_x.append((nx-(xmin+5))*15/(xdiff))
+    
+    #ymin = 0  - assumption
+    ymax = np.max(y)
+    norm_y = []
+    for ny in y:
+        norm_y.append(ny*0.2/ymax)
+
+    print("INFO: Starting fit using scipy.optimize.curve_fit")
+
+    guess = (0, np.pi/2)
 
     # fitting landau curve
-    param, param_cov = so.curve_fit(landau_arr, x[:-1], y, guess)
+    param, param_cov = so.curve_fit(landau_arr, norm_x[:-1], norm_y, guess)
 
     print(f"INFO: Data fitted using Landau distribution mu = {param[0]}, c = {param[1]}")
 
     # determining maximum of landau curve
     landau_discrete_n = 100
-    x2 = np.linspace(x[0], x[-1], landau_discrete_n)
+    x2 = np.linspace(norm_x[0], norm_x[-1], landau_discrete_n)
     landau_discrete = [landau(i, param[0], param[1]) for i in x2]
     max_x = 0
     maximum = 0         # want to find x-coord of maximum (in y)
@@ -83,13 +87,14 @@ def calibrate(energy_events, simultaneity=1e-5, mion_crit=5):
         if landau_discrete[i]>maximum: 
             maximum=landau_discrete[i]
             max_x = i
-    mu_energy = x2[max_x]
+    
+    mu_energy = x2[max_x]*xdiff/15 + xmin+5    # denormalize as x
 
     print(f"INFO: Mion energy obtained: 200MeV ~ {mu_energy}.")
-
+    print(f"INFO: Plotting resulted fit...")
     plot_result = True
     if plot_result:
-        pp.plot(x[:-1], y)
+        pp.plot(norm_x[:-1], norm_y)
         pp.plot(x2, landau_discrete)
         pp.show()
 
