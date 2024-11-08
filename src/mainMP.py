@@ -32,7 +32,9 @@ debug_n_files = settings["debug"]["debug_n_files"]
 if debug_mode: print(f"DEBUG MODE: activated, debug_n_files={debug_n_files}")
 
 # data folder path
-data_folder = settings["main"]["data_folder"]    
+data_folder = settings["main"]["data_folder"]
+# export to CSV
+export_CSV = settings["main"]["export_events_to_CSV"]
 
 # processFile timeout
 timeout = settings["run_config"]["processFile_timeout"]
@@ -101,6 +103,8 @@ for result, rf in zip(results, raw_files):
         print(f"WARNING: Unable to process file {rf} (timeout).")
 
 print('INFO: Multiprocessing ends.')
+if export_CSV:
+    print('INFO: Export to CSV...')
 
 ## Clear RAM after multiprocessing
 if os.name == 'posix' and POSIX_drop_cache_continuously:

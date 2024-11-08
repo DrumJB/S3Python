@@ -1,6 +1,7 @@
 {
     "main":{
-        "data_folder": "./data"
+        "data_folder": "./data",
+        "export_events_to_CSV": true
     },
     "run_config":{
         "processFile_timeout": 500,
