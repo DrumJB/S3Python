@@ -1,16 +1,20 @@
 {
     "main":{
         "data_folder": "./data",
-        "export_events_to_CSV": true
+        "export_events_to_CSV": true,
+        "CSV_name": "events",
+        "energy_calibration": false,
+        "noise_file": "/home/jachym/noise_file.txt"
     },
     "run_config":{
+        "mion_crit": 3,
         "processFile_timeout": 500,
         "max_RAM_usage": 0.7,
         "POSIX_drop_cache": false,
         "POSIX_drop_cache_continuously": false
     },
     "debug":{
-        "debug_mode": true,
+        "debug_mode": false,
         "debug_n_files": 6
     }
 }

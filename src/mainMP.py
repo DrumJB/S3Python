@@ -1,5 +1,6 @@
 # library import
 import numpy as np
+import pandas as pd
 import multiprocessing as mp
 import os
 import datetime
@@ -35,6 +36,9 @@ if debug_mode: print(f"DEBUG MODE: activated, debug_n_files={debug_n_files}")
 data_folder = settings["main"]["data_folder"]
 # export to CSV
 export_CSV = settings["main"]["export_events_to_CSV"]
+CSV_name = settings["main"]["CSV_name"] + ".csv"
+# calibrate
+energy_calibration = settings['main']['energy_calibration']
 
 # processFile timeout
 timeout = settings["run_config"]["processFile_timeout"]
@@ -102,20 +106,33 @@ for result, rf in zip(results, raw_files):
     except mp.TimeoutError:
         print(f"WARNING: Unable to process file {rf} (timeout).")
 
+energy_events = np.concatenate(energies)    # this returns all events with their energies in one numpy array
 print('INFO: Multiprocessing ends.')
-if export_CSV:
-    print('INFO: Export to CSV...')
 
-## Clear RAM after multiprocessing
+
+## EXPORT EVENTS TO CSV
+if export_CSV:
+    print(f'INFO: Export to CSV: "{CSV_name}"')
+    data = {'time': energy_events[:,0],             # prepare CSV with headers
+            'detector': energy_events[:,1],
+            'energy': energy_events[:,2]
+    }
+    df = pd.DataFrame(data)                     # export to data folder using pandas
+    df.to_csv(data_folder+"/"+CSV_name, sep='\t')
+    print(f"INFO: CSV exported to {data_folder+"/"+CSV_name}")
+
+# Clear RAM after multiprocessing if checked in settings
 if os.name == 'posix' and POSIX_drop_cache_continuously:
     os.system("sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'")
     print("INFO: RAM cache cleared.")
 
-# MION CALIBRATION
-energy_events = np.concatenate(energies)    # this returns all events with their energies in one numpy array
-mion_energy_eqiv = energyCalibration.calibrate(energy_events=energy_events)    # returned value is corresponds to 200 MeV
+## MION CALIBRATION
+if energy_calibration:
+    mion_energy_eqiv = energyCalibration.calibrate(energy_events=energy_events)    # returned value is corresponds to 200 MeV
+    print("INFO: Calibration ended.")
+else:
+    print('INFO: Calibration canceled.')
 
-print("INFO: Calibration ended.")
 
 ## END
 

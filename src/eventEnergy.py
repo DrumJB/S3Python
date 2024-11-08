@@ -54,12 +54,13 @@ def eventEnergy(event, noise_levels):
         data.append(sample - noise_level)
     
     # integrate
-    interval = 1e-8
+    interval = 1e-8     # time step is 10 ns
     x = np.linspace(0, len(samples)*interval, len(samples))
     #for i in range(len(data)-1):
     #    rectangle = data[i]*interval                    # simple geometry
     #    triangle = (data[i+1]-data[i])*interval/2
     #    energy += rectangle + triangle
     energy = si.trapezoid(samples, x=x)
+    energy = energy * 1/32768       # normalizing to 'correct' zero in -1 V using half of the number of bins (65568) 
 
-    return [time, detector, energy]
+    return [time, int(detector), energy]
