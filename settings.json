@@ -11,7 +11,8 @@
         "processFile_timeout": 500,
         "max_RAM_usage": 0.7,
         "POSIX_drop_cache": false,
-        "POSIX_drop_cache_continuously": false
+        "POSIX_drop_cache_continuously": false,
+        "print_n_steps_in_event_analysis": 4
     },
     "debug":{
         "debug_mode": false,
