@@ -3,11 +3,13 @@ This is code for analyzing data from S3 experiment. The main features are:
 - reading the binary files from machine output
 - exporting existing data to readable CSV format
 - simple energy calibration using basic fitting algorithm (Landau distribution)
+
+
 Now working on or improving these features:
 - advanced fitting using Langauss and convolution minimization
 
 ### Docs
-You can learn more about the code in the [Docs](./docs/hompage.md).
+You can learn more about the code in the [Docs](./docs/homepage.md).
 
 ### Basic Usage
 If you understand the purpose of the code, you can run the code with specifying custom settings in the JSON file. This needs to be added as parameter when running the code:
