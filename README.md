@@ -19,6 +19,8 @@ If you understand the purpose of the code, you can run the code with specifying 
 Usually, modifying the first section `main`.
 
 ### Updates
+##### 29.12.2024
+Finding out the reason of interrupted RAW files. The issue is probably in missing part of the head - for some reason only `f0` header is added instead of `fff0` which should be correct. See analysis in `binaryFilesStructure.ipynb` notebook.
 ##### 17.11.2024
 In notebook `fitting.ipynb` I have implemented the Landau, Langauss and Langauss with convolution fitting with some analysis of error. Criterion used is MSE (Mean Squared Error).
 ##### 14.11.2024
