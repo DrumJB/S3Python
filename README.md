@@ -19,6 +19,8 @@ If you understand the purpose of the code, you can run the code with specifying 
 Usually, modifying the first section `main`.
 
 ### Updates
+##### 30.12.2024
+Improved RAM memory handling. Complete folder now can be correctly processed and saved to many temporary CSV files. Further improvement to somehow merge those CSV files in plan.
 ##### 29.12.2024
 Finding out the reason of interrupted RAW files. The issue is probably in missing part of the head - for some reason only `f0` header is added instead of `fff0` which should be correct. See analysis in `binaryFilesStructure.ipynb` notebook.
 ##### 17.11.2024

@@ -29,6 +29,7 @@ def readFile(raw_file_path):
     # final print out
     print(f"INFO: Read file {raw_file_path}.")
 
+    del hexdata
     return events
 
 class Event:

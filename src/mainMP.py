@@ -8,6 +8,8 @@ import psutil as pu
 import sys
 import json
 import time
+import random
+import gc
 
 import readFile
 import eventEnergy
@@ -37,6 +39,8 @@ data_folder = settings["main"]["data_folder"]
 # export to CSV
 export_CSV = settings["main"]["export_events_to_CSV"]
 CSV_name = settings["main"]["CSV_name"] + ".csv"
+temp_folder = './temp'
+
 # calibrate
 energy_calibration = settings['main']['energy_calibration']
 
@@ -47,6 +51,8 @@ timeout = settings["run_config"]["processFile_timeout"]
 max_RAM_usage = settings["run_config"]["max_RAM_usage"]
 POSIX_drop_cache = settings["run_config"]["POSIX_drop_cache"]
 POSIX_drop_cache_continuously = settings["run_config"]["POSIX_drop_cache_continuously"]
+max_RAM_wait_usage = 0.5
+max_wait_iter = 5
 
 # clear RAM cache if run on POSIX system
 if os.name == 'posix' and POSIX_drop_cache:
@@ -71,22 +77,39 @@ for o in objs:
 # set number of files to load equal to debug_n_files if debug
 if debug_mode: raw_files = raw_files[:debug_n_files]
 
+## EXPORT EVENTS TO CSV
+def export_CSV_func(energy_events, n, where):
+    data = {'time': energy_events[:,0],             # prepare CSV with headers
+            'detector': energy_events[:,1],
+            'energy': energy_events[:,2]
+    }
+    df = pd.DataFrame(data)                     # export to data folder using pandas
+    df.to_csv(where+"/"+str(n)+CSV_name, sep='\t')
+
+
 ## PROCESSING FUNCTION
 
 # function for processing one file, called in Pool
 def processFile(file_name):
     done = False
-    energies = []
+    events, energies = [], []
     while not done:     # try to run the job if not done
-        if pu.virtual_memory()[2]/100 < max_RAM_usage:
+        if pu.virtual_memory()[2]/100 < max_RAM_wait_usage:
             events = readFile.readFile(file_name)
             energies = eventEnergy.eventsEnergy(events)    # result - events in form: [time, detector, energy]
             done=True
             print(f"INFO: Processed file {file_name}.")
-        else:
-            print(f"INFO: Waiting for RAM memory ({pu.virtual_memory()[2]}%).")
-            time.sleep(5)   # wait for 5 seconds
-    return energies
+            
+    if export_CSV:
+        n_rand = random.randint(100000, 999999)
+        export_CSV_func(np.array(energies), n_rand, data_folder)
+        print(f"INFO: CSV exported to {data_folder+"/"+CSV_name+str(n_rand)}")
+    else:
+        export_CSV_func(np.array(energies), random.randint(100000, 999999), temp_folder)
+        print('INFO: Temporary CSV exported to temp folder.')
+    del energies
+
+    return False
 
 ## MULTIPROCESSING - POOLING
 
@@ -97,29 +120,19 @@ if mp.cpu_count() > 4:
 
 pool = mp.Pool(cpu_c)    # Pool object
 
-energies = []
-
 results = [pool.apply_async(processFile, args=(rf,)) for rf in raw_files]
 for result, rf in zip(results, raw_files):
     try:
-        energies.append(result.get(timeout=timeout))
+        res = result.get(timeout=timeout)
+        del result
+        gc.collect()
     except mp.TimeoutError:
         print(f"WARNING: Unable to process file {rf} (timeout).")
+        del result
+        gc.collect()
 
-energy_events = np.concatenate(energies)    # this returns all events with their energies in one numpy array
+#energy_events = np.concatenate(energies)    # this returns all events with their energies in one numpy array
 print('INFO: Multiprocessing ends.')
-
-
-## EXPORT EVENTS TO CSV
-if export_CSV:
-    print(f'INFO: Export to CSV: "{CSV_name}"')
-    data = {'time': energy_events[:,0],             # prepare CSV with headers
-            'detector': energy_events[:,1],
-            'energy': energy_events[:,2]
-    }
-    df = pd.DataFrame(data)                     # export to data folder using pandas
-    df.to_csv(data_folder+"/"+CSV_name, sep='\t')
-    print(f"INFO: CSV exported to {data_folder+"/"+CSV_name}")
 
 # Clear RAM after multiprocessing if checked in settings
 if os.name == 'posix' and POSIX_drop_cache_continuously:
@@ -128,7 +141,7 @@ if os.name == 'posix' and POSIX_drop_cache_continuously:
 
 ## MION CALIBRATION
 if energy_calibration:
-    mion_energy_eqiv = energyCalibration.calibrate(energy_events=energy_events)    # returned value is corresponds to 200 MeV
+    #mion_energy_eqiv = energyCalibration.calibrate(energy_events=energy_events)    # returned value is corresponds to 200 MeV
     print("INFO: Calibration ended.")
 else:
     print('INFO: Calibration canceled.')
