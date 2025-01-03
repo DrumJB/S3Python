@@ -3,7 +3,7 @@
 # importing libraries
 import numpy as np
 
-def readFile(raw_file_path): 
+def readFile(raw_file_path, print_warning=False, print_l2_info=False): 
     # function for loading all events in one file as Event class.
     # returns array of Event classes
 
@@ -24,10 +24,10 @@ def readFile(raw_file_path):
     # filling new list with Event classes
     events = []
     for i in range(n_events):
-        events.append(Event(hexdata, first_header+SAMPLE_LENGTH_CONST*i))
+        events.append(Event(hexdata, first_header+SAMPLE_LENGTH_CONST*i, print_warning))
     
     # final print out
-    print(f"INFO: Read file {raw_file_path}.")
+    if print_l2_info: print(f"INFO L2: Read file {raw_file_path}.")
 
     del hexdata
     return events
@@ -35,18 +35,19 @@ def readFile(raw_file_path):
 class Event:
     # class for parsing one event in file
 
-    def __init__(self, data, start_byte):
+    def __init__(self, data, start_byte, print_warning=False):
         """
         Initialization. The hex data (str) and the start byte (int) needed.
         """
         self.position = start_byte      # saving the position to object for better access from outside
         self.parse_from_binary(data)    # calling the parsing function - to be clearer
+        self.pw = print_warning
     
     def parse_from_binary(self, data):
 
         # check header - 2 bytes
         if data[self.position:self.position+4] != 'fff0':
-            print('ERROR: Can not create event, header not found')      # the position is probably wrong
+            if self.pw: print('WARNING: Can not create event, header not found')      # the position is probably wrong
         
         # detector code
         self.detector = int(data[self.position-2:self.position], 16)    # on byte (=> two letters) before the header
@@ -73,7 +74,7 @@ class Event:
         
         # check the next event header (the two bytes before are the detector number)
         if data[self.position + 4*self.length + 34 : self.position + 4*self.length + 38]!='fff0':
-            print(f"WARNING: the next event not found (instead: {data[self.position + 4*self.length + 34 : self.position + 4*self.length + 38]})")
+            if self.pw: print(f"WARNING: the next event not found (instead: {data[self.position + 4*self.length + 34 : self.position + 4*self.length + 38]})")
 
 if __name__ == '__main__':
     # example, not runned if imported (__name__ != '__main__')

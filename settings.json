@@ -1,21 +1,21 @@
 {
     "main":{
-        "data_folder": "./data",
-        "export_events_to_CSV": true,
-        "CSV_name": "events",
-        "energy_calibration": false,
-        "noise_file": "/home/jachym/noise_file.txt"
+        "data_folder": "/home/buben/mnt/netdata/Group-S3/Bezovka_olovo_22_02_750keV",
+        "export_events_to_CSV": false,
+        "CSV_name": "Bo750M",
+        "energy_calibration": true,
+        "noise_file": "/home/buben/noise_file.txt"
     },
     "run_config":{
         "mion_crit": 3,
-        "processFile_timeout": 500,
+        "processFile_timeout": 60,
         "max_RAM_usage": 0.7,
         "POSIX_drop_cache": false,
         "POSIX_drop_cache_continuously": false,
-        "print_n_steps_in_event_analysis": 4
+        "print_n_steps_in_event_analysis": 1
     },
     "debug":{
-        "debug_mode": false,
-        "debug_n_files": 6
+        "debug_mode": true,
+        "debug_n_files": 100
     }
 }

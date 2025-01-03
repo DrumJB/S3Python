@@ -7,8 +7,8 @@ import pandas as pd
 import scipy.integrate as si
 import numpy as np
 
-def eventsEnergy(events, noiseFile=""):
-    print(f"INFO: Analyzing {len(events)} events.")
+def eventsEnergy(events, noiseFile="", print_warning=False, print_l2_info=False):
+    if print_l2_info: print(f"INFO L2: Analyzing {len(events)} events.")
 
     # loading default noise file if not given
     if noiseFile == "":
@@ -18,11 +18,11 @@ def eventsEnergy(events, noiseFile=""):
             noiseFile += s
             noiseFile += '/'
         noiseFile += "data/default_noise_levels.txt"
-        print(f"WARNING: No noise file given, using default file: {noiseFile}.")
+        if print_warning: print(f"WARNING: No noise file given, using default file: {noiseFile}.")
 
     # loading noise file
     noise_levels = pd.read_csv(noiseFile, names=['noise'], sep='\t', usecols=[1])     # use only second column (not loading indices)
-    print(f"INFO: Noise levels loaded from {noiseFile}.")
+    if print_l2_info: print(f"INFO L2: Noise levels loaded from {noiseFile}.")
 
     energies = []
     print_n_out = 4
@@ -32,7 +32,7 @@ def eventsEnergy(events, noiseFile=""):
         progress = int(i/len(events)*print_n_out)
         if not print_out[progress]:
             print_out[progress] = True
-            print(f"INFO: Energy event analysis progress (individual process): {int(progress*100/print_n_out)}%.")
+            if print_l2_info: print(f"INFO L2: Energy event analysis progress (individual process): {int(progress*100/print_n_out)}%.")
 
     # free RAM memory
     del events
